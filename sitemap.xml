@@ -3,35 +3,35 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>/post/blog-bleurgh/</loc>
+    <loc>https://niharika29.github.io/post/blog-bleurgh/</loc>
     <lastmod>2017-09-09T13:50:46+02:00</lastmod>
   </url>
   
   <url>
-    <loc>/categories/</loc>
+    <loc>https://niharika29.github.io/categories/</loc>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>/tags/intro/</loc>
-    <lastmod>2017-09-09T13:50:46+02:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>/post/</loc>
+    <loc>https://niharika29.github.io/tags/intro/</loc>
     <lastmod>2017-09-09T13:50:46+02:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>/tags/</loc>
+    <loc>https://niharika29.github.io/post/</loc>
     <lastmod>2017-09-09T13:50:46+02:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>/</loc>
+    <loc>https://niharika29.github.io/tags/</loc>
+    <lastmod>2017-09-09T13:50:46+02:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://niharika29.github.io/</loc>
     <lastmod>2017-09-09T13:50:46+02:00</lastmod>
     <priority>0</priority>
   </url>
