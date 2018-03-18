@@ -1,0 +1,242 @@
+<!doctype html>
+<html class="no-js">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>The bugalore</title>
+        <meta name="author">
+        <meta name="description" content="Documenting my life, one bug at a time">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="generator" content="Hugo 0.26" />
+        <link href="https://niharika29.github.io/post/index.xml" rel="alternate" type="application/rss+xml" title="The bugalore" />
+        <link href="https://niharika29.github.io/post/index.xml" rel="feed" type="application/rss+xml" title="The bugalore" />
+        <link href='//fonts.googleapis.com/css?family=Roboto:400,300,700|Noto+Serif:400,400italic,700,700italic' rel='stylesheet' type='text/css'>
+        <link rel="stylesheet" href="https://niharika29.github.io/css/styles.css">
+        <link rel="icon" href="https://niharika29.github.io/favicon.ico">
+        <link rel="apple-touch-icon" href="https://niharika29.github.io/apple-touch-icon.png" />
+        <link rel="stylesheet" href="https://niharika29.github.io/css/highlightjs/monokai.css">
+        <script src="https://niharika29.github.io/js/vendor/modernizr-2.8.0.min.js"></script>
+        
+        <style>
+        .site-header h2 .logo {
+        background: url(https://niharika29.github.io/img/bugalore.png) no-repeat 0 0;
+        }
+        @media (min--moz-device-pixel-ratio: 1.3), (-o-min-device-pixel-ratio: 2.6 / 2), (-webkit-min-device-pixel-ratio: 1.3), (min-device-pixel-ratio: 1.3), (min-resolution: 1.3dppx) {
+          .site-header h2 .logo {
+            background-image: url(https://niharika29.github.io/img/bugalore.png);
+        }}
+       .site-header {
+         background: #2a373d url(https://niharika29.github.io/img/bugalore.png) no-repeat center center;
+         z-index: -1;
+        }
+        </style>
+    </head>
+    <body>
+        
+        <header class="site-header">
+          <div class="transparent-layer">
+              <h2>Bugalore!</h2>
+          </div>
+        </header>
+
+
+<div class="container clearfix">
+    <main role="main" class="content">
+        <article class="post">
+            
+<h1><a href="https://niharika29.github.io/post/eventlogging/" title="An Eventlogging adventure">An Eventlogging adventure</a></h1>
+
+<footer class="post-info"> <span class="post-meta"><time datetime="2017.09.14">2017.09.14</time>
+
+    &middot; 
+        
+        <a href="https://niharika29.github.io/tags/intro">intro</a>
+        
+    
+
+</span>
+</footer>
+
+            
+
+<h2 id="what-the-heck-is-eventlogging">What the heck is eventlogging?</h2>
+
+<p>Eventlogging is a <a href="https://www.mediawiki.org/wiki/Extension:EventLogging">MediaWiki extension</a> which lets us log events such as how users interact with a certain feature (client-side logging) or capturing the state of a system (user, permissions etc.) when a certain event happens (server-side logging). There are 3 different parts to eventlogging an event. The schema, the code and the log data. I won&rsquo;t be going into the details of that because there&rsquo;s a <a href="https://www.mediawiki.org/wiki/Extension:EventLogging/Guide#Events_and_schemas_briefly_defined">detailed guide</a> for it.</p>
+
+<hr />
+
+<p>Now we&rsquo;ve got that out of the way, let&rsquo;s take a look at the problem at hand.</p>
+
+<p>My team is implementing the <a href="https://en.wikipedia.org/wiki/WP:ACTRIAL">ACTRIAL</a> experiment which will prevent non-autoconfirmed users from creating articles on English Wikipedia. The task was simple: Log which links were clicked from the <a href="https://en.wikipedia.org/wiki/Wikipedia:New_user_landing_page">landing page</a> and how many times.</p>
+
+<p>The <a href="https://meta.wikimedia.org/wiki/Schema:ArticleCreationWorkflow">schema</a> was easy. The code involved loading a JS file on the landing page and tracking link clicks via eventlogging. The JS code was really simple too:</p>
+
+<pre><code>( function ( $, mw ) {
+
+	function trackData( interactionType, link, sampling ) {
+		mw.loader.using( 'schema.ArticleCreationWorkflow' ).then( function () {
+			mw.eventLog.logEvent( 'ArticleCreationWorkflow', {
+				interactionType: interactionType,
+				link: link,
+				sampling: sampling || 1
+			}
+		} );
+	}
+
+	$( 'html' ).on( 'click', '#bodyContent a', function ( event ) {
+		var link = $( this ).attr( 'href' );
+		trackData( 'click', link );
+	} );
+
+} ( jQuery, mediaWiki ) );
+
+</code></pre>
+
+<p>While this is the most common way of lazy loading eventlogging schemas, there&rsquo;s a better and shorter way of doing it. Instead of -</p>
+
+<pre><code>mw.loader.using( 'schema.ArticleCreationWorkflow' ).then( function () {
+	mw.eventLog.logEvent( 'ArticleCreationWorkflow', {
+		interactionType: interactionType,
+		link: link,
+		sampling: sampling || 1
+	}
+} );
+</code></pre>
+
+<p>we can use -</p>
+
+<pre><code>mw.track( 'event.ArticleCreationWorkflow', {
+	interactionType: interactionType,
+	link: link,
+	sampling: sampling || 1
+} );
+</code></pre>
+
+<p>This is a log-and-forget way to use eventlogging while only using core interfaces. This code won&rsquo;t produce an error if Eventlogging isn&rsquo;t loaded. This lets us have our extension not to be dependent on Eventlogging.<sup class="footnote-ref" id="fnref:1"><a rel="footnote" href="#fn:1">1</a></sup></p>
+
+<p>But remember, we need to load our schema in <code>extension.json</code>.
+Before <code>mw.track</code>, it was a simple matter of registering the script module -</p>
+
+<pre><code>&quot;ResourceModules&quot;: {
+	&quot;ext.acw.eventlogging&quot;: {
+		&quot;scripts&quot;: [ &quot;acw.eventlogging.js&quot; ]
+	}
+},
+</code></pre>
+
+<p>But now in addition to that, you need to register your schema with the <code>EventLoggingRegisterSchemas</code> hook. So something like -</p>
+
+<pre><code>public static function onEventLoggingRegisterSchemas( array &amp;$schemas ) {
+	global $wgArticleCreationEventLoggingSchemas;
+	foreach ( $wgArticleCreationEventLoggingSchemas as $schema =&gt; $property ) {
+		if ( $property['enabled'] ) {
+			$schemas[$schema] = $property['revision'];
+		}
+	}
+}
+</code></pre>
+
+<p>With all of that in place, the only remaining thing is to hook up our code with the <a href="https://www.mediawiki.org/wiki/Manual:Hooks/BeforePageDisplay"><code>BeforePageDisplay</code></a> MediaWiki hook, in order to inject our JS to the display before the page is rendered.</p>
+
+<p>This is rather easy to do -</p>
+
+<pre><code>public static function onBeforePageDisplay( OutputPage $out ) {
+	$config = MediaWikiServices::getInstance()
+		-&gt;getConfigFactory()
+		-&gt;makeConfig( 'ArticleCreationWorkflow' );
+	$workflow = new Workflow( $config );
+	if ( $out-&gt;getPageTitle() == $workflow-&gt;getLandingPageTitle() ) {
+		$out-&gt;addModules( 'ext.acw.eventlogging' );
+	}
+}
+</code></pre>
+
+<p>Lastly, don&rsquo;t forget to tell MediaWiki wabout your hooks in <code>extension.json</code>:</p>
+
+<pre><code>// BeforePageDisplay hook
+&quot;BeforePageDisplay&quot;: &quot;ArticleCreationWorkflow\\Hooks::onBeforePageDisplay&quot;,
+
+// EventLoggingRegisterSchemas hook
+&quot;EventLoggingRegisterSchemas&quot;: &quot;ArticleCreationWorkflow\\Hooks::onEventLoggingRegisterSchemas&quot;
+</code></pre>
+
+<p>Lastly, some actual patches for you to look at and admire: <a href="https://gerrit.wikimedia.org/r/#/c/377658/">1</a>, <a href="https://gerrit.wikimedia.org/r/#/c/377926/">2</a>, <a href="https://gerrit.wikimedia.org/r/#/c/376086/">3</a></p>
+<div class="footnotes">
+
+<hr />
+
+<ol>
+<li id="fn:1"><a href="https://gerrit.wikimedia.org/r/#/c/374436/3/modules/acw.eventlogging.js">This information brought to you and me by Krinkle</a>.
+ <a class="footnote-return" href="#fnref:1"><sup>[return]</sup></a></li>
+</ol>
+</div>
+
+            <a class="btn home" href="https://niharika29.github.io/" title="">&laquo; </a>
+            <ul class="share-buttons">
+    <li></li>
+    
+    <li>
+        <a class="icon-twitter" href="https://twitter.com/intent/tweet?url=https%3a%2f%2fniharika29.github.io%2fpost%2feventlogging%2f&via=Niharika29" onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;" title=""></a>
+    </li>
+    
+</ul>
+
+        </article>
+        
+    </main>
+    <aside class="author">
+  <img class="profile-image" src="https://niharika29.github.io/img/profile-image.jpg" alt="Niharika Kohli" />
+  <p class="name"> 
+  <strong>Niharika Kohli</strong></p>
+  <p class="address">Documenting my life, one bug at a time</p>
+  <p class="link"></p>
+  <ul class="social">
+    
+<li><a href="//twitter.com/niharikakohli29" class="icon-twitter" target="_blank" title="Twitter"></a></li>
+
+
+
+
+
+<li><a href="//linkedin.com/in/niharika-kohli-b24aa081" class="icon-linkedin" target="_blank" title="Linkedin"></a></li>
+
+
+
+
+
+
+
+
+
+<li><a href="//github.com/Niharika29" class="icon-github" target="_blank" title="Github"></a></li>
+
+
+
+
+<li><a href="https://niharika29.github.io/post/index.xml" class="icon-rss" target="_blank" title="RSS"></a></li>
+
+  </ul>
+  <br><br>
+</aside>
+
+</div>
+
+<footer class="main-footer">
+  <div class="container clearfix">
+        <a class="icon-rss" href="https://niharika29.github.io/post/index.xml" title="RSS"></a>
+        <p>&copy; 2018 &middot; Powered by frustration, passion and <a href="http://gohugo.io">Hugo</a>.</p>
+  </div>
+</footer>
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.8.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<script>window.jQuery || document.write('<script src="https:\/\/niharika29.github.io\/js\/vendor\/jquery-1.11.0.min.js"><\/script>')</script>
+<script src="https://niharika29.github.io/js/plugins.js"></script>
+
+
+
+
+</body>
+</html>
+

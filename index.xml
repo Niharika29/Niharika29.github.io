@@ -7,10 +7,19 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>Powered by frustration, passion and [Hugo](http://gohugo.io).</copyright>
-    <lastBuildDate>Sat, 09 Sep 2017 13:50:46 +0200</lastBuildDate>
+    <lastBuildDate>Thu, 14 Sep 2017 13:50:46 +0200</lastBuildDate>
     
 	<atom:link href="https://niharika29.github.io/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>An Eventlogging adventure</title>
+      <link>https://niharika29.github.io/post/eventlogging/</link>
+      <pubDate>Thu, 14 Sep 2017 13:50:46 +0200</pubDate>
+      
+      <guid>https://niharika29.github.io/post/eventlogging/</guid>
+      <description>What the heck is eventlogging? Eventlogging is a MediaWiki extension which lets us log events such as how users interact with a certain feature (client-side logging) or capturing the state of a system (user, permissions etc.) when a certain event happens (server-side logging). There are 3 different parts to eventlogging an event. The schema, the code and the log data. I won&amp;rsquo;t be going into the details of that because there&amp;rsquo;s a detailed guide for it.</description>
+    </item>
     
     <item>
       <title>Blog? Bleurgh.</title>
