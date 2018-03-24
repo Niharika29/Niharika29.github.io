@@ -1,0 +1,370 @@
+<!doctype html>
+<html class="no-js">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>The bugalore</title>
+        <meta name="author">
+        <meta name="description" content="Documenting my life, one bug at a time">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="generator" content="Hugo 0.26" />
+        <link href="https://niharika29.github.io/post/index.xml" rel="alternate" type="application/rss+xml" title="The bugalore" />
+        <link href="https://niharika29.github.io/post/index.xml" rel="feed" type="application/rss+xml" title="The bugalore" />
+        <link href='//fonts.googleapis.com/css?family=Roboto:400,300,700|Noto+Serif:400,400italic,700,700italic' rel='stylesheet' type='text/css'>
+        <link rel="stylesheet" href="https://niharika29.github.io/css/styles.css">
+        <link rel="icon" href="https://niharika29.github.io/favicon.ico">
+        <link rel="apple-touch-icon" href="https://niharika29.github.io/apple-touch-icon.png" />
+        <link rel="stylesheet" href="https://niharika29.github.io/css/highlightjs/monokai.css">
+        <script src="https://niharika29.github.io/js/vendor/modernizr-2.8.0.min.js"></script>
+        
+        <style>
+        .site-header h2 .logo {
+        background: url(https://niharika29.github.io/img/bugalore.png) no-repeat 0 0;
+        }
+        @media (min--moz-device-pixel-ratio: 1.3), (-o-min-device-pixel-ratio: 2.6 / 2), (-webkit-min-device-pixel-ratio: 1.3), (min-device-pixel-ratio: 1.3), (min-resolution: 1.3dppx) {
+          .site-header h2 .logo {
+            background-image: url(https://niharika29.github.io/img/bugalore.png);
+        }}
+       .site-header {
+         background: #2a373d url(https://niharika29.github.io/img/bugalore.png) no-repeat center center;
+         z-index: -1;
+        }
+        </style>
+    </head>
+    <body>
+        
+        <header class="site-header">
+          <div class="transparent-layer">
+              <h2>Bugalore!</h2>
+          </div>
+        </header>
+
+
+<div class="container clearfix">
+    <main role="main" class="content">
+        <article class="post">
+            
+<h1><a href="https://niharika29.github.io/post/mediawiki-backup-restore/" title="Resurrecting a MediaWiki instance">Resurrecting a MediaWiki instance</a></h1>
+
+<footer class="post-info"> <span class="post-meta"><time datetime="2017.09.14">2017.09.14</time>
+
+    &middot; 
+        
+        <a href="https://niharika29.github.io/tags/tech">tech</a>, 
+        
+        <a href="https://niharika29.github.io/tags/code">code</a>
+        
+    
+
+</span>
+</footer>
+
+            
+
+<p>This was my first time backing up and setting up a new MediaWiki (-vagrant) instance from scratch so I decided to document it in the hope that future me might find it useful.</p>
+
+<p>We (teams at Wikimedia) often use MediaWiki-Vagrant instances on Labs, err, Cloud VPS to test and demonstrate our projects. It&rsquo;s also pretty handy to be able to use it when one&rsquo;s local dev environment is out of order (way more common than you&rsquo;d think).</p>
+
+<p>However, one day I woke up to&hellip;
+<img src="/img/mw-hhvm-trusty.png" alt="Broken stage" />
+&hellip;on our team instance (<code>commtech-1.commtech.eqiad.wmflabs</code>).</p>
+
+<p>Okay, so I went in and tried to upgrade the HHVM package on the instance.</p>
+
+<pre><code class="language-bash">$ sudo apt-get install --only-upgrade hhvm
+  Reading package lists... Done
+  Building dependency tree
+  Reading state information... Done
+  hhvm is already the newest version.
+  0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+$ hhvm --version
+  HipHop VM 3.12.7 (rel)
+  Compiler: 3.12.7+dfsg-1+wmf1~trusty1
+  Repo schema: a28132f015144d07eea2af17c422c8d422b7111e
+</code></pre>
+
+<p>No luck.</p>
+
+<p>bd808 recommended I look into spawning a new instance now that <a href="https://hhvm.com/blog/2017/02/15/hhvm-3-18.html">HHVM is dropping support for Trusty anyway</a>.</p>
+
+<p>Well then. Let&rsquo;s get rolling in the mud.</p>
+
+<h2 id="backing-up-mediawiki">Backing up MediaWiki</h2>
+
+<p>I&rsquo;d never done this before and was a bit afraid of messing up things badly. But we got nothing to lose here. Lucky for me there is some good <a href="https://www.mediawiki.org/wiki/Manual:Backing_up_a_wiki#File_system">documentation</a> for doing this.</p>
+
+<h3 id="1-backing-up-the-database-https-www-mediawiki-org-wiki-manual-backing-up-a-wiki-mysqldump-from-the-command-line">1. <a href="https://www.mediawiki.org/wiki/Manual:Backing_up_a_wiki#Mysqldump_from_the_command_line">Backing up the database</a></h3>
+
+<p>This was straightforward enough:</p>
+
+<pre><code class="language-bash">$ ssh commtech-1.commtech.eqiad.wmflabs
+$ cd /srv/medawiki-vagrant
+$ vagrant ssh
+$ cd /vagrant
+$ mysqldump -h hostname -u userid -p dbname &gt; backup.sql
+</code></pre>
+
+<p>The values for <code>hostname</code>, <code>userid</code>, <code>dbname</code> and <code>dbpassword</code> can be found in your <a href="https://www.mediawiki.org/wiki/Manual:LocalSettings.php">LocalSettings.php</a>. Note that since this was a vagrant instance, the values were spread over both <code>/mediawiki-vagrant/LocalSettings.php</code> and <code>/mediawiki-vagrant/mediawiki/LocalSettings.php</code>. Also note that this command works from <em>inside vagrant</em> so don&rsquo;t forget to ssh in, noob.</p>
+
+<h3 id="2-backing-up-the-file-system-https-www-mediawiki-org-wiki-manual-backing-up-a-wiki-file-system">2. <a href="https://www.mediawiki.org/wiki/Manual:Backing_up_a_wiki#File_system">Backing up the file system</a></h3>
+
+<p>This backs up the file system, including images and config files. It took a while. The tar was ~1.5GB.</p>
+
+<pre><code class="language-bash">$ tar zcvhf fsbackup.tgz /srv/mediawiki-vagrant/mediawiki
+</code></pre>
+
+<p>If, like me, you have no idea what <code>zcvhf</code> does - <a href="https://www.computerhope.com/unix/utar.htm">read this</a>.</p>
+
+<h3 id="3-backing-up-the-wiki-content-https-www-mediawiki-org-wiki-manual-backing-up-a-wiki-backup-the-content-of-the-wiki-xml-dump">3. <a href="https://www.mediawiki.org/wiki/Manual:Backing_up_a_wiki#Backup_the_content_of_the_wiki_(XML_dump)">Backing up the wiki content</a></h3>
+
+<p>This was easy to do with the <a href="https://www.mediawiki.org/wiki/Manual:DumpBackup.php"><code>dumpBackup.php</code></a> script in MediaWiki.</p>
+
+<pre><code class="language-bash">$ php maintenance/dumpBackup.php -- full &gt; dump.xml
+</code></pre>
+
+<h2 id="exporting-files-to-local-system">Exporting files to local system</h2>
+
+<p>If you were paying attention, you would have deduced by now that the instance I was backing up lived on <a href="https://wikitech.wikimedia.org/wiki/Portal:Cloud_VPS">a remote server</a>. I used sftp to move the files from the remote server to my local system.
+I was shocked to see how easy this was! I&rsquo;d tried messing with ftp a long time back and I couldn&rsquo;t get it to work then. Since then I had a notion of how complex it is but I was so wrong!</p>
+
+<p>This was all it took -</p>
+
+<pre><code class="language-bash">$ sftp commtech-1.commtech.eqiad.wmflabs
+Connected to commtech-1.commtech.eqiad.wmflabs.
+sftp&gt; pwd
+Remote working directory: /home/niharika29
+sftp&gt; get backup.sql
+Fetching /srv/mediawiki-vagrant/backup.sql to backup.sql
+/srv/mediawiki-vagrant/backup.sql		100%   12MB   1.6MB/s   00:07
+sftp&gt; get fsbackupmw.tgz
+Fetching /srv/mediawiki-vagrant/fsbackupmw.tgz to fsbackupmw.tgz
+/srv/mediawiki-vagrant/fsbackupmw.tgz		100% 1454MB   1.5MB/s   16:45
+sftp&gt; get dump.xml
+Fetching /srv/mediawiki-vagrant/mediawiki/dump.xml to dump.xml
+/srv/mediawiki-vagrant/mediawiki/dump.xml	100%  196     0.8KB/s   00:00
+stp&gt; bye
+</code></pre>
+
+<h2 id="settings-up-a-fresh-instance">Settings up a fresh instance</h2>
+
+<p>This is something I have done a handful of times now and it&rsquo;s gotten easier though it seems like a complex thing on the surface. There&rsquo;s ample good <a href="https://wikitech.wikimedia.org/wiki/Help:MediaWiki-Vagrant_in_Cloud_VPS">documentation</a>.</p>
+
+<p>TL;DR steps:
+1. Setup a new instance on <a href="https://horizon.wikimedia.org/">Horizon</a> in the project you want it to be a part of.
+1. Add <code>role::labs::mediawiki_vagrant</code> to the instance from the Puppet tab.
+1. SSH in to the instance <code>ssh commtech-2.commtech.wmflabs.org</code>
+1. and run puppet: <code>sudo puppet agent --test --verbose</code>
+1. Log out and in
+1. <code>cd /srv/mediawiki-vagrant; vagrant up; vagrant provision</code>
+1. Verify it works: <code>curl http://localhost:8080/wiki/Main_Page</code>
+1. Set up a proxy for your instance on Horizon (DNS menu). Pick port 8080.
+1. <a href="https://commtech2.wmflabs.org">https://commtech2.wmflabs.org</a> - Tada!</p>
+
+<h2 id="importing-backup-files-to-new-instance">Importing backup files to new instance</h2>
+
+<p>Reverse sftp steps:</p>
+
+<pre><code class="language-bash">$ sftp commtech-2.commtech.eqiad.wmflabs
+Connected to commtech-2.commtech.eqiad.wmflabs.
+sftp&gt; put fsbackupmw.tgz
+Uploading fsbackupmw.tgz to /home/niharika29/fsbackupmw.tgz
+fsbackupmw.tgz						100% 1454MB 633.9KB/s   39:09
+sftp&gt; put backup.sql
+Uploading backup.sql to /home/niharika29/backup.sql
+backup.sql						100%    0     0.0KB/s   00:00
+sftp&gt; put dump.xml
+Uploading dump.xml to /home/niharika29/dump.xml
+dump.xml						100%  196     1.4KB/s   00:00
+sftp&gt; bye
+</code></pre>
+
+<h2 id="restoring-mediawiki">Restoring MediaWiki</h2>
+
+<p>Again, this sounds pretty tricky. But where there&rsquo;s <a href="https://www.mediawiki.org/wiki/Manual:Restoring_a_wiki_from_backup">documentation</a>, there&rsquo;s a way.</p>
+
+<h3 id="1-restoring-the-database">1. Restoring the database</h3>
+
+<p>My new mw-vagrant instance came with the <code>wiki</code> database so I had to drop that first, but for good measure I backed it up just in case things go awry:</p>
+
+<pre><code class="language-bash">$ ssh commtech-2.commtech.eqiad.wmflabs
+$ cd /srv/mediawiki-vagrant/
+$ vagrant ssh
+
+                 /
+            .,. /
+          ,mmmmn   ___  ___           _  _         _    _  _  _     _
+  ,._   .,###&quot;nI)  |  \/  |          | |(_)       | |  | |(_)| |   (_)
+ # ###########     | .  . |  ___   __| | _   __ _ | |  | | _ | | __ _
+ # ############&quot;&quot;  | |\/| | / _ \ / _` || | / _` || |/\| || || |/ /| |
+&quot;  ####     #  ./  | |  | ||  __/| (_| || || (_| |\  /\  /| ||   &lt; | |
+   #'(#     #  &quot;   \_|  |_/ \___| \__,_||_| \__,_| \/  \/ |_||_|\_\|_|
+   #  &quot;)     #
+   #,  '&quot;    '&quot;
+$ mysqldump -h '127.0.01' -u 'wikiadmin' -p --default-character-set=binary wiki &gt; backupnew.sql
+  Enter password:
+$ cd /vagrant/
+$ mysqladmin -u wikiadmin -p drop wiki
+  Enter password:
+  Dropping the database is potentially a very bad thing to do.
+  Any data stored in the database will be destroyed.
+  Do you really want to drop the 'wiki' database [y/N] y
+  Database &quot;wiki&quot; dropped
+$ mysqladmin -u wikiadmin -p create wiki
+  Enter password:
+$ mysql -u wikiadmin -p wiki &lt; backupold.sql
+  Enter password:
+</code></pre>
+
+<p>Okay, that seems to have worked:
+<img src="/img/db-backup-stage.png" alt="Backup stage" /></p>
+
+<p>Let&rsquo;s move on to step 2.</p>
+
+<h3 id="2-restoring-content-from-dump">2. Restoring content from dump</h3>
+
+<p>This seemed easy. Docs: <a href="https://www.mediawiki.org/wiki/Manual:Importing_XML_dumps">Link</a>.</p>
+
+<p>And&hellip;.</p>
+
+<pre><code>$ php mediawiki/maintenance/importDump.php &lt; dump.xml
+PHP Warning:  XMLReader::read(): uploadsource://49d8375e96a198ed0d05abb86da047d2:1: parser error : Document is empty in /vagrant/mediawiki/includes/import/WikiImporter.php on line 572
+PHP Stack trace:
+PHP   1. {main}() /vagrant/mediawiki/maintenance/importDump.php:0
+PHP   2. require_once() /vagrant/mediawiki/maintenance/importDump.php:350
+PHP   3. BackupReader-&gt;execute() /vagrant/mediawiki/maintenance/doMaintenance.php:94
+PHP   4. BackupReader-&gt;importFromStdin() /vagrant/mediawiki/maintenance/importDump.php:116
+PHP   5. BackupReader-&gt;importFromHandle() /vagrant/mediawiki/maintenance/importDump.php:287
+PHP   6. WikiImporter-&gt;doImport() /vagrant/mediawiki/maintenance/importDump.php:345
+PHP   7. XMLReader-&gt;read() /vagrant/mediawiki/includes/import/WikiImporter.php:572
+
+Warning: XMLReader::read(): uploadsource://49d8375e96a198ed0d05abb86da047d2:1: parser error : Document is empty in /vagrant/mediawiki/includes/import/WikiImporter.php on line 572
+
+Call Stack:
+    0.0011     409040   1. {main}() /vagrant/mediawiki/maintenance/importDump.php:0
+    0.0053     685024   2. require_once('/vagrant/mediawiki/maintenance/doMaintenance.php') /vagrant/mediawiki/maintenance/importDump.php:350
+    0.1899    9788992   3. BackupReader-&gt;execute() /vagrant/mediawiki/maintenance/doMaintenance.php:94
+    0.2157   11012768   4. BackupReader-&gt;importFromStdin() /vagrant/mediawiki/maintenance/importDump.php:116
+    0.2157   11013256   5. BackupReader-&gt;importFromHandle() /vagrant/mediawiki/maintenance/importDump.php:287
+    0.2249   11315864   6. WikiImporter-&gt;doImport() /vagrant/mediawiki/maintenance/importDump.php:345
+    0.2249   11315864   7. XMLReader-&gt;read() /vagrant/mediawiki/includes/import/WikiImporter.php:572
+
+PHP Warning:  XMLReader::read(): Error: You might be using an older HHVM version.  in /vagrant/mediawiki/includes/import/WikiImporter.php on line 572
+PHP Stack trace:
+PHP   1. {main}() /vagrant/mediawiki/maintenance/importDump.php:0
+PHP   2. require_once() /vagrant/mediawiki/maintenance/importDump.php:350
+PHP   3. BackupReader-&gt;execute() /vagrant/mediawiki/maintenance/doMaintenance.php:94
+PHP   4. BackupReader-&gt;importFromStdin() /vagrant/mediawiki/maintenance/importDump.php:116
+PHP   5. BackupReader-&gt;importFromHandle() /vagrant/mediawiki/maintenance/importDump.php:287
+PHP   6. WikiImporter-&gt;doImport() /vagrant/mediawiki/maintenance/importDump.php:345
+PHP   7. XMLReader-&gt;read() /vagrant/mediawiki/includes/import/WikiImporter.php:572
+
+[dfed825ae694612f3d132ec8] [no req]   MWException from line 576 of /vagrant/mediawiki/includes/import/WikiImporter.php: Expected &lt;mediawiki&gt; tag, got
+Backtrace:
+#0 /vagrant/mediawiki/maintenance/importDump.php(345): WikiImporter-&gt;doImport()
+#1 /vagrant/mediawiki/maintenance/importDump.php(287): BackupReader-&gt;importFromHandle(resource)
+#2 /vagrant/mediawiki/maintenance/importDump.php(116): BackupReader-&gt;importFromStdin()
+#3 /vagrant/mediawiki/maintenance/doMaintenance.php(94): BackupReader-&gt;execute()
+#4 /vagrant/mediawiki/maintenance/importDump.php(350): require_once(string)
+#5 {main}
+</code></pre>
+
+<p>Hmm, my guess is that some content wasn&rsquo;t imported because it depended on the HHVM version. I did see <a href="http://commtech2.wmflabs.org/wiki/Test_hindi">some pages</a> so it hasn&rsquo;t entirely failed.</p>
+
+<p>¯\_(ツ)_/¯</p>
+
+<p>Let&rsquo;s move on.</p>
+
+<h3 id="3-restoring-the-file-system">3. Restoring the file system</h3>
+
+<p>This is probably the biggest hurdle.</p>
+
+<pre><code>$ tar -xvzf fsbackupmw.tgz
+</code></pre>
+
+<p>That spit out the list of files it unpacked. I had to do some <code>mv</code> to get it in the right spot. Okay.</p>
+
+<p>There were some dependency errors.</p>
+
+<pre><code>$ composer install; composer update
+</code></pre>
+
+<p>That fixed those.</p>
+
+<p>I can login with my credentials. It all works, yay!</p>
+
+<p>But I still see&hellip;.
+<img src="/img/db-backup-stage.png" alt="Almost done stage" /></p>
+
+<p>Uh oh. Bizarrely, I couldn&rsquo;t find that file on neither the old instance, nor the new one. <a href="https://www.mediawiki.org/wiki/Manual:Image_administration">After</a> spending <a href="https://www.mediawiki.org/wiki/Manual:Configuring_file_uploads#Prerequisites">a bit</a> of <a href="https://www.mediawiki.org/wiki/Manual:$wgUploadDirectory">time</a> on <a href="https://www.mediawiki.org/wiki/Manual:Errors_and_symptoms#Image_Thumbnails_not_working_and/or_appearing">this</a>, I <a href="https://i.redd.it/2jsbryjusg2y.png">decided</a> to just upload another version and that <a href="http://commtech.wmflabs.org/wiki/Main_Page">worked</a>!</p>
+
+<p><img src="/img/done-stage.png" alt="Done stage" /></p>
+
+            <a class="btn home" href="https://niharika29.github.io/" title="">&laquo; </a>
+            <ul class="share-buttons">
+    <li></li>
+    
+    <li>
+        <a class="icon-twitter" href="https://twitter.com/intent/tweet?url=https%3a%2f%2fniharika29.github.io%2fpost%2fmediawiki-backup-restore%2f&via=niharikakohli29" onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;" title=""></a>
+    </li>
+    
+</ul>
+
+        </article>
+        
+    </main>
+    <aside class="author">
+  <img class="profile-image" src="https://niharika29.github.io/img/profile-image.jpg" alt="Niharika Kohli" />
+  <p class="name"> 
+  <strong>Niharika Kohli</strong></p>
+  <p class="address">Documenting my life, one bug at a time</p>
+  <p class="link"></p>
+  <ul class="social">
+    
+<li><a href="//twitter.com/niharikakohli29" class="icon-twitter" target="_blank" title="Twitter"></a></li>
+
+
+
+
+
+<li><a href="//linkedin.com/in/niharika-kohli-b24aa081" class="icon-linkedin" target="_blank" title="Linkedin"></a></li>
+
+
+
+
+
+
+
+
+
+<li><a href="//github.com/Niharika29" class="icon-github" target="_blank" title="Github"></a></li>
+
+
+
+
+<li><a href="https://niharika29.github.io/post/index.xml" class="icon-rss" target="_blank" title="RSS"></a></li>
+
+  </ul>
+  <br><br>
+</aside>
+
+</div>
+
+<footer class="main-footer">
+  <div class="container clearfix">
+        <a class="icon-rss" href="https://niharika29.github.io/post/index.xml" title="RSS"></a>
+        <p>&copy; 2018 &middot; Powered by frustration, passion and <a href="http://gohugo.io">Hugo</a>.</p>
+  </div>
+</footer>
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.8.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<script>window.jQuery || document.write('<script src="https:\/\/niharika29.github.io\/js\/vendor\/jquery-1.11.0.min.js"><\/script>')</script>
+<script src="https://niharika29.github.io/js/plugins.js"></script>
+
+
+
+
+</body>
+</html>
+
