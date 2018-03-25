@@ -149,16 +149,19 @@ stp&gt; bye
 
 <p>This is something I have done a handful of times now and it&rsquo;s gotten easier though it seems like a complex thing on the surface. There&rsquo;s ample good <a href="https://wikitech.wikimedia.org/wiki/Help:MediaWiki-Vagrant_in_Cloud_VPS">documentation</a>.</p>
 
-<p>TL;DR steps:
-1. Setup a new instance on <a href="https://horizon.wikimedia.org/">Horizon</a> in the project you want it to be a part of.
-1. Add <code>role::labs::mediawiki_vagrant</code> to the instance from the Puppet tab.
-1. SSH in to the instance <code>ssh commtech-2.commtech.wmflabs.org</code>
-1. and run puppet: <code>sudo puppet agent --test --verbose</code>
-1. Log out and in
-1. <code>cd /srv/mediawiki-vagrant; vagrant up; vagrant provision</code>
-1. Verify it works: <code>curl http://localhost:8080/wiki/Main_Page</code>
-1. Set up a proxy for your instance on Horizon (DNS menu). Pick port 8080.
-1. <a href="https://commtech2.wmflabs.org">https://commtech2.wmflabs.org</a> - Tada!</p>
+<p>TL;DR steps:</p>
+
+<ol>
+<li>Setup a new instance on <a href="https://horizon.wikimedia.org/">Horizon</a> in the project you want it to be a part of.</li>
+<li>Add <code>role::labs::mediawiki_vagrant</code> to the instance from the Puppet tab.</li>
+<li>SSH in to the instance <code>ssh commtech-2.commtech.wmflabs.org</code></li>
+<li>and run puppet: <code>sudo puppet agent --test --verbose</code></li>
+<li>Log out and in</li>
+<li><code>cd /srv/mediawiki-vagrant; vagrant up; vagrant provision</code></li>
+<li>Verify it works: <code>curl http://localhost:8080/wiki/Main_Page</code></li>
+<li>Set up a proxy for your instance on Horizon (DNS menu). Pick port 8080.</li>
+<li><a href="https://commtech2.wmflabs.org">https://commtech2.wmflabs.org</a> - Tada!</li>
+</ol>
 
 <h2 id="importing-backup-files-to-new-instance">Importing backup files to new instance</h2>
 
@@ -298,6 +301,8 @@ Backtrace:
 <p>Uh oh. Bizarrely, I couldn&rsquo;t find that file on neither the old instance, nor the new one. <a href="https://www.mediawiki.org/wiki/Manual:Image_administration">After</a> spending <a href="https://www.mediawiki.org/wiki/Manual:Configuring_file_uploads#Prerequisites">a bit</a> of <a href="https://www.mediawiki.org/wiki/Manual:$wgUploadDirectory">time</a> on <a href="https://www.mediawiki.org/wiki/Manual:Errors_and_symptoms#Image_Thumbnails_not_working_and/or_appearing">this</a>, I <a href="https://i.redd.it/2jsbryjusg2y.png">decided</a> to just upload another version and that <a href="http://commtech.wmflabs.org/wiki/Main_Page">worked</a>!</p>
 
 <p><img src="/img/done-stage.png" alt="Done stage" /></p>
+
+<p>I leave you with a <a href="https://en.wikipedia.org/wiki/Ship_of_Theseus">philosophical conundrum</a>. The instance has the same content and data and web-proxy as before but a new underlying infrastructure. Can we say that it&rsquo;s the same instance?</p>
 
             <a class="btn home" href="https://niharika29.github.io/" title="">&laquo; </a>
             <ul class="share-buttons">
