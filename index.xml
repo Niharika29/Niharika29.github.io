@@ -7,10 +7,20 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>Powered by frustration, passion and [Hugo](http://gohugo.io).</copyright>
-    <lastBuildDate>Tue, 03 Apr 2018 13:50:46 +0200</lastBuildDate>
+    <lastBuildDate>Sat, 13 Apr 2019 13:50:46 +0200</lastBuildDate>
     
 	<atom:link href="https://niharika29.github.io/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>[Project] TemplateWizard for WikiEditor</title>
+      <link>https://niharika29.github.io/post/template-wizard/</link>
+      <pubDate>Sat, 13 Apr 2019 13:50:46 +0200</pubDate>
+      
+      <guid>https://niharika29.github.io/post/template-wizard/</guid>
+      <description>One of the perks of working at an open source organization like mine is that I get to talk about my work projects with the world. Everything I do as part of my work is public and accessible to anyone who wishes to see it.
+TemplateWizard is one of the first projects I undertook as a Product Manager that has major user-facing functionality. The project was requested during the 2017 Community Wishlist Survey and made it to #5 in the results.</description>
+    </item>
     
     <item>
       <title>Becoming a Product Manager</title>
