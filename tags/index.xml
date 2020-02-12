@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Tags on The bugalore</title>
@@ -6,32 +6,31 @@
     <description>Recent content in Tags on The bugalore</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <copyright>Powered by frustration, passion and [Hugo](http://gohugo.io).</copyright>
-    <lastBuildDate>Sat, 24 Mar 2018 13:50:46 +0200</lastBuildDate>
+    <lastBuildDate>Tue, 11 Feb 2020 12:00:00 +0200</lastBuildDate>
     
 	<atom:link href="https://niharika29.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
-      <title>Code</title>
-      <link>https://niharika29.github.io/tags/code/</link>
-      <pubDate>Sat, 24 Mar 2018 13:50:46 +0200</pubDate>
+      <title>life</title>
+      <link>https://niharika29.github.io/tags/life/</link>
+      <pubDate>Tue, 11 Feb 2020 12:00:00 +0200</pubDate>
       
-      <guid>https://niharika29.github.io/tags/code/</guid>
+      <guid>https://niharika29.github.io/tags/life/</guid>
       <description></description>
     </item>
     
     <item>
-      <title>Intro</title>
-      <link>https://niharika29.github.io/tags/intro/</link>
-      <pubDate>Sat, 09 Sep 2017 13:50:46 +0200</pubDate>
+      <title>tech</title>
+      <link>https://niharika29.github.io/tags/tech/</link>
+      <pubDate>Tue, 11 Feb 2020 12:00:00 +0200</pubDate>
       
-      <guid>https://niharika29.github.io/tags/intro/</guid>
+      <guid>https://niharika29.github.io/tags/tech/</guid>
       <description></description>
     </item>
     
     <item>
-      <title>Product</title>
+      <title>product</title>
       <link>https://niharika29.github.io/tags/product/</link>
       <pubDate>Sat, 13 Apr 2019 13:50:46 +0200</pubDate>
       
@@ -40,11 +39,20 @@
     </item>
     
     <item>
-      <title>Tech</title>
-      <link>https://niharika29.github.io/tags/tech/</link>
-      <pubDate>Sat, 13 Apr 2019 13:50:46 +0200</pubDate>
+      <title>code</title>
+      <link>https://niharika29.github.io/tags/code/</link>
+      <pubDate>Sat, 24 Mar 2018 13:50:46 +0200</pubDate>
       
-      <guid>https://niharika29.github.io/tags/tech/</guid>
+      <guid>https://niharika29.github.io/tags/code/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>intro</title>
+      <link>https://niharika29.github.io/tags/intro/</link>
+      <pubDate>Sat, 09 Sep 2017 13:50:46 +0200</pubDate>
+      
+      <guid>https://niharika29.github.io/tags/intro/</guid>
       <description></description>
     </item>
     

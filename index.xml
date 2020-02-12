@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>The bugalore</title>
@@ -6,11 +6,19 @@
     <description>Recent content on The bugalore</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <copyright>Powered by frustration, passion and [Hugo](http://gohugo.io).</copyright>
-    <lastBuildDate>Sat, 13 Apr 2019 13:50:46 +0200</lastBuildDate>
+    <lastBuildDate>Tue, 11 Feb 2020 12:00:00 +0200</lastBuildDate>
     
 	<atom:link href="https://niharika29.github.io/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Asking Better Questions</title>
+      <link>https://niharika29.github.io/post/asking-better-questions/</link>
+      <pubDate>Tue, 11 Feb 2020 12:00:00 +0200</pubDate>
+      
+      <guid>https://niharika29.github.io/post/asking-better-questions/</guid>
+      <description>I was listening to a podcast today which featured L. David Marquet who has recently published a book called Leadership is Language in which he talks about how asking better questions can help so much in our day to day communication. He narrated the engaging story about observing the conversation recorded on the black box of a sunken ship. He realized how much more effective the conversations and decision-making on board could have been, had someone asked better questions.</description>
+    </item>
     
     <item>
       <title>[Project] TemplateWizard for WikiEditor</title>

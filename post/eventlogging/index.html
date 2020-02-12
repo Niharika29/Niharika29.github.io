@@ -7,7 +7,7 @@
         <meta name="author">
         <meta name="description" content="Documenting my life, one bug at a time">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="generator" content="Hugo 0.26" />
+        <meta name="generator" content="Hugo 0.64.1" />
         <link href="https://niharika29.github.io/post/index.xml" rel="alternate" type="application/rss+xml" title="The bugalore" />
         <link href="https://niharika29.github.io/post/index.xml" rel="feed" type="application/rss+xml" title="The bugalore" />
         <link href='//fonts.googleapis.com/css?family=Roboto:400,300,700|Noto+Serif:400,400italic,700,700italic' rel='stylesheet' type='text/css'>
@@ -59,20 +59,12 @@
 </span>
 </footer>
 
-            
-
-<h2 id="what-the-heck-is-eventlogging">What the heck is eventlogging?</h2>
-
+            <h2 id="what-the-heck-is-eventlogging">What the heck is eventlogging?</h2>
 <p>Eventlogging is a <a href="https://www.mediawiki.org/wiki/Extension:EventLogging">MediaWiki extension</a> which lets us log events such as how users interact with a certain feature (client-side logging) or capturing the state of a system (user, permissions etc.) when a certain event happens (server-side logging). There are 3 different parts to eventlogging an event. The schema, the code and the log data. I won&rsquo;t be going into the details of that because there&rsquo;s a <a href="https://www.mediawiki.org/wiki/Extension:EventLogging/Guide#Events_and_schemas_briefly_defined">detailed guide</a> for it.</p>
-
-<hr />
-
+<hr>
 <p>Now we&rsquo;ve got that out of the way, let&rsquo;s take a look at the problem at hand.</p>
-
 <p>My team is implementing the <a href="https://en.wikipedia.org/wiki/WP:ACTRIAL">ACTRIAL</a> experiment which will prevent non-autoconfirmed users from creating articles on English Wikipedia. The task was simple: Log which links were clicked from the <a href="https://en.wikipedia.org/wiki/Wikipedia:New_user_landing_page">landing page</a> and how many times.</p>
-
 <p>The <a href="https://meta.wikimedia.org/wiki/Schema:ArticleCreationWorkflow">schema</a> was easy. The code involved loading a JS file on the landing page and tracking link clicks via eventlogging. The JS code was really simple too:</p>
-
 <pre><code>( function ( $, mw ) {
 
 	function trackData( interactionType, link, sampling ) {
@@ -92,10 +84,7 @@
 
 } ( jQuery, mediaWiki ) );
 
-</code></pre>
-
-<p>While this is the most common way of lazy loading eventlogging schemas, there&rsquo;s a better and shorter way of doing it. Instead of -</p>
-
+</code></pre><p>While this is the most common way of lazy loading eventlogging schemas, there&rsquo;s a better and shorter way of doing it. Instead of -</p>
 <pre><code>mw.loader.using( 'schema.ArticleCreationWorkflow' ).then( function () {
 	mw.eventLog.logEvent( 'ArticleCreationWorkflow', {
 		interactionType: interactionType,
@@ -103,31 +92,21 @@
 		sampling: sampling || 1
 	}
 } );
-</code></pre>
-
-<p>we can use -</p>
-
+</code></pre><p>we can use -</p>
 <pre><code>mw.track( 'event.ArticleCreationWorkflow', {
 	interactionType: interactionType,
 	link: link,
 	sampling: sampling || 1
 } );
-</code></pre>
-
-<p>This is a log-and-forget way to use eventlogging while only using core interfaces. This code won&rsquo;t produce an error if Eventlogging isn&rsquo;t loaded. This lets us have our extension not to be dependent on Eventlogging.<sup class="footnote-ref" id="fnref:1"><a rel="footnote" href="#fn:1">1</a></sup></p>
-
+</code></pre><p>This is a log-and-forget way to use eventlogging while only using core interfaces. This code won&rsquo;t produce an error if Eventlogging isn&rsquo;t loaded. This lets us have our extension not to be dependent on Eventlogging.<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup></p>
 <p>But remember, we need to load our schema in <code>extension.json</code>.
 Before <code>mw.track</code>, it was a simple matter of registering the script module -</p>
-
 <pre><code>&quot;ResourceModules&quot;: {
 	&quot;ext.acw.eventlogging&quot;: {
 		&quot;scripts&quot;: [ &quot;acw.eventlogging.js&quot; ]
 	}
 },
-</code></pre>
-
-<p>But now in addition to that, you need to register your schema with the <code>EventLoggingRegisterSchemas</code> hook. So something like -</p>
-
+</code></pre><p>But now in addition to that, you need to register your schema with the <code>EventLoggingRegisterSchemas</code> hook. So something like -</p>
 <pre><code>public static function onEventLoggingRegisterSchemas( array &amp;$schemas ) {
 	global $wgArticleCreationEventLoggingSchemas;
 	foreach ( $wgArticleCreationEventLoggingSchemas as $schema =&gt; $property ) {
@@ -136,12 +115,8 @@ Before <code>mw.track</code>, it was a simple matter of registering the script m
 		}
 	}
 }
-</code></pre>
-
-<p>With all of that in place, the only remaining thing is to hook up our code with the <a href="https://www.mediawiki.org/wiki/Manual:Hooks/BeforePageDisplay"><code>BeforePageDisplay</code></a> MediaWiki hook, in order to inject our JS to the display before the page is rendered.</p>
-
+</code></pre><p>With all of that in place, the only remaining thing is to hook up our code with the <a href="https://www.mediawiki.org/wiki/Manual:Hooks/BeforePageDisplay"><code>BeforePageDisplay</code></a> MediaWiki hook, in order to inject our JS to the display before the page is rendered.</p>
 <p>This is rather easy to do -</p>
-
 <pre><code>public static function onBeforePageDisplay( OutputPage $out ) {
 	$config = MediaWikiServices::getInstance()
 		-&gt;getConfigFactory()
@@ -151,27 +126,21 @@ Before <code>mw.track</code>, it was a simple matter of registering the script m
 		$out-&gt;addModules( 'ext.acw.eventlogging' );
 	}
 }
-</code></pre>
-
-<p>Lastly, don&rsquo;t forget to tell MediaWiki wabout your hooks in <code>extension.json</code>:</p>
-
+</code></pre><p>Lastly, don&rsquo;t forget to tell MediaWiki wabout your hooks in <code>extension.json</code>:</p>
 <pre><code>// BeforePageDisplay hook
 &quot;BeforePageDisplay&quot;: &quot;ArticleCreationWorkflow\\Hooks::onBeforePageDisplay&quot;,
 
 // EventLoggingRegisterSchemas hook
 &quot;EventLoggingRegisterSchemas&quot;: &quot;ArticleCreationWorkflow\\Hooks::onEventLoggingRegisterSchemas&quot;
-</code></pre>
-
-<p>Lastly, some actual patches for you to look at and admire: <a href="https://gerrit.wikimedia.org/r/#/c/377658/">1</a>, <a href="https://gerrit.wikimedia.org/r/#/c/377926/">2</a>, <a href="https://gerrit.wikimedia.org/r/#/c/376086/">3</a></p>
-<div class="footnotes">
-
-<hr />
-
+</code></pre><p>Lastly, some actual patches for you to look at and admire: <a href="https://gerrit.wikimedia.org/r/#/c/377658/">1</a>, <a href="https://gerrit.wikimedia.org/r/#/c/377926/">2</a>, <a href="https://gerrit.wikimedia.org/r/#/c/376086/">3</a></p>
+<section class="footnotes" role="doc-endnotes">
+<hr>
 <ol>
-<li id="fn:1"><a href="https://gerrit.wikimedia.org/r/#/c/374436/3/modules/acw.eventlogging.js">This information brought to you and me by Krinkle</a>.
- <a class="footnote-return" href="#fnref:1"><sup>[return]</sup></a></li>
+<li id="fn:1" role="doc-endnote">
+<p><a href="https://gerrit.wikimedia.org/r/#/c/374436/3/modules/acw.eventlogging.js">This information brought to you and me by Krinkle</a>. <a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
 </ol>
-</div>
+</section>
 
             <a class="btn home" href="https://niharika29.github.io/" title="">&laquo; </a>
             <ul class="share-buttons">
@@ -226,7 +195,7 @@ Before <code>mw.track</code>, it was a simple matter of registering the script m
 <footer class="main-footer">
   <div class="container clearfix">
         <a class="icon-rss" href="https://niharika29.github.io/post/index.xml" title="RSS"></a>
-        <p>&copy; 2019 &middot; Powered by frustration, passion and <a href="http://gohugo.io">Hugo</a>.</p>
+        <p>&copy; 2020 &middot; Powered by frustration, passion and <a href="http://gohugo.io">Hugo</a>.</p>
   </div>
 </footer>
 

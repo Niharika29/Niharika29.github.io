@@ -7,7 +7,7 @@
         <meta name="author">
         <meta name="description" content="Documenting my life, one bug at a time">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="generator" content="Hugo 0.26" />
+        <meta name="generator" content="Hugo 0.64.1" />
         <link href="https://niharika29.github.io/post/index.xml" rel="alternate" type="application/rss+xml" title="The bugalore" />
         <link href="https://niharika29.github.io/post/index.xml" rel="feed" type="application/rss+xml" title="The bugalore" />
         <link href='//fonts.googleapis.com/css?family=Roboto:400,300,700|Noto+Serif:400,400italic,700,700italic' rel='stylesheet' type='text/css'>
@@ -60,55 +60,34 @@
 </footer>
 
             <p><em><strong>Note: This post was originally published on <a href="https://wikimediafoundation.org/2018/09/06/global-preferences-wikimedia-wikis/">https://wikimediafoundation.org/2018/09/06/global-preferences-wikimedia-wikis/</a></strong></em></p>
-
 <p>There are a lot of Wikimedia wikis. Wikipedia is the best-known of them all, but there&rsquo;s also Commons, Wikiquote, Wikisource, Wiktionary, and more.</p>
-
 <p>Also, each of these sites is available in multiple languages. Wikipedia, for example, has nearly 300 language editions. The newest launched <a href="https://sat.wikipedia.org/wiki/%E1%B1%A2%E1%B1%A9%E1%B1%AC%E1%B1%A9%E1%B1%9B_%E1%B1%A5%E1%B1%9F%E1%B1%A6%E1%B1%B4%E1%B1%9F">just this week</a>.</p>
-
 <p>Until this month, each wiki and language version had individual preference settings. This caused some serious frustration for people who contribute to multiple wikis.</p>
-
 <p>Want to set your timezone to your new vacation location? You had to update your preferences on all four wikis. Want to stop getting spammed by a harassing user? You had to visit every single wiki to block them so you don’t get constant notifications from them. Want to try out a new skin? Well, you had to go to every wiki to change its appearance.</p>
-
 <p>Thankfully, this era has ended with the Community Tech team&rsquo;s deployment of <a href="https://www.mediawiki.org/wiki/Extension:GlobalPreferences">global preferences</a>.</p>
-
 <p>———</p>
-
 <p>Global Preferences was a long-sought request from power users who used multiple wikis to do their work. It was officially filed as a request for the first time in <a href="https://phabricator.wikimedia.org/T16950">July 2008</a>, and was requested many times in the years after. The earliest known attempt to provide this feature was made by <a href="https://www.mediawiki.org/wiki/User:Werdna">Andrew Garrett</a> in <a href="https://www.mediawiki.org/wiki/Special:Code/MediaWiki/49932">April 2009</a>, back when code reviews for MediaWiki used to happen on a local level. Garratt&rsquo;s version was built into the CentralAuth extension, which seemed like a handy place because it was doing login unification across all wikis anyway. Unfortunately, it was quickly rolled back because there was no reasonable user interface for it.</p>
-
-<p>Three years passed with more requests for this feature, but it wasn’t seriously considered again until an aspiring Google Summer of Code intern stumbled upon it in 2012. They started a conversation on a Wikimedia mailing list to see if this was still something people considered useful, to which <a href="https://en.wikipedia.org/wiki/User:Bináris">Bináris</a> replied with one of my favorite quotes: “<a href="https://lists.wikimedia.org/pipermail/wikitech-l/2012-February/058069.html">Would be the most useful thing since sliced bread!</a>”. However, it quickly became apparent that this project was too much work for a newcomer to take on and thus, it was dropped again.</p>
-
+<p>Three years passed with more requests for this feature, but it wasn’t seriously considered again until an aspiring Google Summer of Code intern stumbled upon it in 2012. They started a conversation on a Wikimedia mailing list to see if this was still something people considered useful, to which <a href="https://en.wikipedia.org/wiki/User:Bin%C3%A1ris">Bináris</a> replied with one of my favorite quotes: “<a href="https://lists.wikimedia.org/pipermail/wikitech-l/2012-February/058069.html">Would be the most useful thing since sliced bread!</a>”. However, it quickly became apparent that this project was too much work for a newcomer to take on and thus, it was dropped again.</p>
 <p>Almost nineteen months later, this project had the good fortune of being picked up by long-time Wikimedia developer <a href="https://en.wikipedia.org/wiki/User:Legoktm">Legoktm</a>, who wrote the MediaWiki extension <a href="https://www.mediawiki.org/wiki/Extension:GlobalPreferences">GlobalPreferences</a> to provide a simple way to establish global preferences. They would live in their own table and local preferences would be overridden when a global preference value was present. Simple enough, right? Well, it was, until you started considering what the user interface should be like. Should there be only one preferences page with an additional checkbox for what should be global? Should there be a different special page on a central wiki to keep things simpler? Or maybe we should have one on every wiki? How would you design it in a way that’s easy to understand and use? These questions sparked several interesting <a href="https://phabricator.wikimedia.org/T68869">conversations</a> with lots of good ideas.</p>
-
 <p>The earliest implementation of this feature looked something like this:
-<img src="/img/globalprefs-1.png" alt="" /></p>
-
+<img src="/img/globalprefs-1.png" alt=""></p>
 <p>Or the more crazy…
-<img src="/img/globalprefs-2.png" alt="" /></p>
-
+<img src="/img/globalprefs-2.png" alt=""></p>
 <p>As you can see, this didn’t look all that glamorous, especially as the number of options increased. The global preferences extension was still far from being complete. It needed significant refactoring for MediaWiki core’s preference handling for global preferences to be deployed on Wikimedia wikis. This was a prospect scary enough to give experienced editors cold feet.</p>
-
 <p>Three more years passed. Finally, in late 2016 <a href="https://meta.wikimedia.org/wiki/User:JAn_Dud%C3%ADk">JAn Dudík</a> <a href="https://meta.wikimedia.org/wiki/2016_Community_Wishlist_Survey/Categories/Miscellaneous#Global_settings">proposed </a> this project for the Community Wishlist Survey, an annual initiative where community members are invited to submit project proposals they deem useful and vote on them. Global preferences ranked #4 on the results list with 84 support votes, and therefore landed with the <a href="https://meta.wikimedia.org/wiki/Community_Tech">Community Tech team</a>, whose mandate is to work on the top 10 projects from the Community Wishlist. Bright eyed and bushy tailed, the team started <a href="https://www.mediawiki.org/wiki/Wikimedia_Developer_Summit/2017/Global_preferences">discussions</a> about the project in earnest. Several different solutions were discussed before the team settled on using the <a href="https://www.mediawiki.org/wiki/Extension:GlobalPreferences">GlobalPreferences extension</a>, as it had several clear advantages over using something outside the Wikimedia projects. It made a <a href="https://meta.wikimedia.org/wiki/Help:Special_page">Special page</a> available on all wikis, eliminating the need for a central wiki that users would need to navigate to, and it worked out of the box when new wikis or preferences were added.</p>
-
 <p>One clear need that came up during the discussions was allowing users to set local overrides on a per-wiki basis. For example, a user who speaks English and Russian fluently might prefer their default language to be English on every wiki except on the Russian Wikipedia, where they would rather see Russian. After putting out a call for feedback from the community, there was an <a href="https://meta.wikimedia.org/wiki/Talk:Community_Tech/Global_preferences#Local_exceptions">overwhelming response</a> in favor of local overrides for all preferences.</p>
-
 <p>In absence of a designer on the team, the-then product manager for the project <a href="https://meta.wikimedia.org/wiki/User:DannyH_(WMF)">Danny Horn</a> decided to take matters into his own hands for fixing the design issues that had been blocking this project for years. The checkboxes for enabling a preference to be global were aligned in one column, on the left. A ‘Select all’ button was added on top to allow making all preferences on the page global. This made the UI for Special:GlobalPreferences almost identical to the UI for Special:Preferences, except for the addition of the extra column of checkboxes.</p>
-
-<p><img src="/img/globalprefs-3.png" alt="" /></p>
-
+<p><img src="/img/globalprefs-3.png" alt=""></p>
 <p>The leading checkboxes enable the preference as global. So in this screenshot, if the first checkbox for ‘Hide minor edits from recent changes’ is checked, it makes the value of the second checkbox (checked or unchecked) for that preference as its global value. After having multiple discussions with people who were interested in the project, the design was largely approved to be worked on.</p>
-
-<p>The way we implemented local per-wiki overrides is by giving the users checkboxes underneath globally set preferences on Special:Preferences. This serves a dual purpose: <br/>
-1. It makes it immediately clear to the user that a preference is global (versus those which aren’t) <br/>
-2. It allows the user to set local exceptions, if they want.</p>
-
-<p><img src="/img/globalprefs-4.png" alt="" /></p>
-
+<p>The way we implemented local per-wiki overrides is by giving the users checkboxes underneath globally set preferences on Special:Preferences. This serves a dual purpose: <!-- raw HTML omitted --></p>
+<ol>
+<li>It makes it immediately clear to the user that a preference is global (versus those which aren’t) <!-- raw HTML omitted --></li>
+<li>It allows the user to set local exceptions, if they want.</li>
+</ol>
+<p><img src="/img/globalprefs-4.png" alt=""></p>
 <p>The bulk of the engineering work on the project was undertaken by the then newest engineer on the Community Tech team, <a href="https://meta.wikimedia.org/wiki/User:SWilson_(WMF)">Sam Wilson</a>. A major chunk of the work on the project, especially the scary refactoring for MediaWiki core, was later done by Community Tech&rsquo;s <a href="https://meta.wikimedia.org/wiki/User:MaxSem_(WMF)">Max Semenik</a>.</p>
-
 <p>In early February 2018, the extension was enabled on the beta cluster for our users to test and provide feedback. After five months and multiple deployment hurdles, it was finally enabled on all Wikimedia wikis on 9 July 2018. You can now go to <a href="http://meta.wikimedia.org/wiki/Special:MyLanguage/Special:GlobalPreferences">Special:GlobalPreferences</a> on the wiki of your choice and set your preferences once and for all on all Wikimedia wikis. You can also go to <a href="https://meta.wikimedia.org/wiki/Special:MyLanguage/Special:Preferences">Special:Preferences</a> on any wiki to set local exceptions for any preference for that wiki.</p>
-
 <p><a href="https://phabricator.wikimedia.org/T16950">Thirteen hearts, ten thumbs-up, two mountains of wealth, a doubloon, a confetti, a goat token, and ten years later</a>, we did it. This is one of the longest and most impactful projects the Community Tech team has ever undertaken. We have a lot of people to thank, without whom this project wouldn’t ever have been complete—especially the community who voted this project up in the survey and helped us make it come to life with their feedback and suggestions as the project developed.</p>
-
 <p>And finally, as with every project, this too has lots of scope for improvement. Global preferences should be the default preference experience for new users, as with other similar websites. There’s also scope for design improvements. We’re hopeful that this feature will continue to evolve and improve with the help of our communities.</p>
 
             <a class="btn home" href="https://niharika29.github.io/" title="">&laquo; </a>
@@ -164,7 +143,7 @@
 <footer class="main-footer">
   <div class="container clearfix">
         <a class="icon-rss" href="https://niharika29.github.io/post/index.xml" title="RSS"></a>
-        <p>&copy; 2019 &middot; Powered by frustration, passion and <a href="http://gohugo.io">Hugo</a>.</p>
+        <p>&copy; 2020 &middot; Powered by frustration, passion and <a href="http://gohugo.io">Hugo</a>.</p>
   </div>
 </footer>
 

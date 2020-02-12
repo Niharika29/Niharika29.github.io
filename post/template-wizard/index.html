@@ -7,7 +7,7 @@
         <meta name="author">
         <meta name="description" content="Documenting my life, one bug at a time">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="generator" content="Hugo 0.26" />
+        <meta name="generator" content="Hugo 0.64.1" />
         <link href="https://niharika29.github.io/post/index.xml" rel="alternate" type="application/rss+xml" title="The bugalore" />
         <link href="https://niharika29.github.io/post/index.xml" rel="feed" type="application/rss+xml" title="The bugalore" />
         <link href='//fonts.googleapis.com/css?family=Roboto:400,300,700|Noto+Serif:400,400italic,700,700italic' rel='stylesheet' type='text/css'>
@@ -60,17 +60,11 @@
 </footer>
 
             <p>One of the perks of working at an open source organization like mine is that I get to talk about my work projects with the world. Everything I do as part of my work is public and accessible to anyone who wishes to see it.</p>
-
 <p>TemplateWizard is one of the first projects I undertook as a Product Manager that has major user-facing functionality. The project was <a href="https://meta.wikimedia.org/wiki/Community_Wishlist_Survey_2017/Editing/Infobox_wizard">requested</a> during the 2017 Community Wishlist Survey and made it to #5 in the <a href="https://meta.wikimedia.org/wiki/Community_Wishlist_Survey_2017/Results">results</a>. My team, <a href="https://meta.wikimedia.org/wiki/Community_Tech">Community Tech</a> at the Wikimedia Foundation conducts the Wishlist Survey every year and commits to working on the top 10 projects that surface in the survey.</p>
-
 <p>The project is to allow advanced editors to quickly and easily add <a href="https://en.wikipedia.org/wiki/Help:Template">templates</a> to wiki pages. This functionality already existed for <a href="https://en.wikipedia.org/wiki/Wikipedia:VisualEditor">VisualEditor</a> but was missing for the widely-used <a href="https://www.mediawiki.org/wiki/Extension:WikiEditor">WikiEditor</a>. The task was to implement the wizard for WikiEditor.</p>
-
 <p>I kicked off the project with a <a href="https://phabricator.wikimedia.org/T184145#3947403">technical investigation</a> on existing solutions and what is and isn&rsquo;t feasible. Based on feedback from the team, we decided to create a <a href="https://en.wikipedia.org/w/index.php?title=User:Samwilson/TemplateWizard.js&amp;oldid=837192002">proof-of-concept user script</a> to play around with. I put together a rough design in Balsamiq for the prototype and we got it up and running pretty quickly.</p>
-
-<p><img src="/img/tw-proto-mock.png" alt="Balsamiq mock for TemplateWizard prototype" /></p>
-
+<p><img src="/img/tw-proto-mock.png" alt="Balsamiq mock for TemplateWizard prototype"></p>
 <p>I <a href="https://meta.wikimedia.org/wiki/Community_Tech/Template_wizard#March_12,_2018">put out a call for feedback</a> and we received some good feedback about the functionality which gave us a chance to revise the functionality. Some of the feedback we heard included:</p>
-
 <ul>
 <li>Allow users to add multiple fields in one go</li>
 <li>Allow adding blank fields</li>
@@ -78,19 +72,15 @@
 <li>Allow edits to existing templates in a page</li>
 <li>Show field and template metadata</li>
 </ul>
-
 <p>In the meantime we ended up getting a designer for the project who <a href="https://phabricator.wikimedia.org/T190348">worked on a more professional design</a> for the wizard and made recommendations for improving usability of TemplateWizard, including a two-panel UI which vastly improved the product experience and made it much more user-friendly. The <a href="https://wikimedia.invisionapp.com/share/A3H6T8XHN6F#/screens/292472058_01">designs</a> make use of <a href="https://www.mediawiki.org/wiki/OOUI">OOUI components</a> which is WMF&rsquo;s own frontend library.</p>
-
 <p>We then worked on a second iteration of the product with the fresh designs and converted it into a <a href="https://www.mediawiki.org/wiki/Extension:TemplateWizard">MediaWiki extension</a> which made it simpler to deploy to all WMF wikis. The redesign got rave reviews! It is a lot more user friendly and modern.</p>
-
 <table>
 <thead>
 <tr>
-<th align="center"><img src="/img/tw-redesign-1.png" alt="TemplateWizard redesign" /></th>
-<th align="center"><img src="/img/tw-redesign-2.png" alt="TemplateWizard redesign" /></th>
+<th align="center"><img src="/img/tw-redesign-1.png" alt="TemplateWizard redesign"></th>
+<th align="center"><img src="/img/tw-redesign-2.png" alt="TemplateWizard redesign"></th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td align="center">Adding a new template</td>
@@ -98,13 +88,9 @@
 </tr>
 </tbody>
 </table>
-
 <p>We also added extensive instrumentation to track feature usage. In particular we wanted to get some data to ensure the feature wasn&rsquo;t being abused for infobox-wars on English wikipedia, which was <a href="https://meta.wikimedia.org/wiki/Talk:Community_Tech/Template_wizard#Social_concern">raised as a concern</a> by a user. After all that, we enabled the extension as a beta feature on all wikis.</p>
-
 <p>Fast forward six months. Looking at the data collected over that time period, we didn&rsquo;t see any feature abuse - in fact we saw some pretty decent <a href="https://meta.wikimedia.org/wiki/Community_Tech/Template_wizard#February_25,_2019">usage statistics</a> for the feature. Emboldened by this, last week we took the feature out of beta and enabled it by default on all projects. 🙌</p>
-
 <p>This culminates almost a year long work on this project done by me and my team. It has been a very exciting first project to have taken on as a product manager. I had a great team and a very supportive community for this project and I&rsquo;m grateful to all of them for their work!</p>
-
 <p>As with any open source project, this project isn&rsquo;t quite done yet! We hope to add some more requested features in coming few months. Also, as with any open source project, patches are <a href="https://gerrit.wikimedia.org/r/#/admin/projects/mediawiki/extensions/TemplateWizard">always welcome</a>. :)</p>
 
             <a class="btn home" href="https://niharika29.github.io/" title="">&laquo; </a>
@@ -160,7 +146,7 @@
 <footer class="main-footer">
   <div class="container clearfix">
         <a class="icon-rss" href="https://niharika29.github.io/post/index.xml" title="RSS"></a>
-        <p>&copy; 2019 &middot; Powered by frustration, passion and <a href="http://gohugo.io">Hugo</a>.</p>
+        <p>&copy; 2020 &middot; Powered by frustration, passion and <a href="http://gohugo.io">Hugo</a>.</p>
   </div>
 </footer>
 
